@@ -1,0 +1,22 @@
+body {
+  padding-top: 1rem;
+}
+
+.channel-card {
+  max-width: 500px;
+}
+
+.channel-oscilloscope {
+  width: 120px;
+  height: 30px;
+}
+.channel-volumecontrol {
+  width: 100px;
+}
+.channel-start {
+  min-width: 120px;
+}
+
+.participant-indicator {
+  width: 8rem;
+}

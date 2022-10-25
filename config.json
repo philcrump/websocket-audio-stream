@@ -1,0 +1,15 @@
+{
+	"http": {
+		"serve_htdocs": true,
+		"address": "127.0.0.1",
+		"port": 8888
+	},
+	"udp": {
+		"address": "127.255.255.255",
+		"port": 5556
+	},
+	"activity": {
+		"address": "127.255.255.255",
+		"port": 55101
+	}	
+}
