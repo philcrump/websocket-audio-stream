@@ -4,19 +4,26 @@ body {
 
 .channel-card {
   max-width: 500px;
+  margin-bottom: 1rem;
 }
 
-.channel-oscilloscope {
-  width: 120px;
-  height: 30px;
-}
 .channel-volumecontrol {
   width: 100px;
+  vertical-align:middle;
 }
+.channel-volumecontrol-label {
+  vertical-align: middle;
+}
+
 .channel-start {
   min-width: 120px;
 }
 
 .participant-indicator {
   width: 8rem;
+}
+
+.handset-card {
+  max-width: 500px;
+  margin-bottom: 1rem;
 }

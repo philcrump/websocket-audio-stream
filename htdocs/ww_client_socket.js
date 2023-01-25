@@ -46,9 +46,7 @@ var websocket_connection = (function() {
     var MAX_CONN_RETRY = 1000;
     var counter_retry_connection = 0;
 
-    var retry_delay_time = 5; // init with this number of miliseconds ... exponentially 
-                              // increase upon hickups
-
+    var retry_delay_time = 5;
 
     var flag_connection_active = true; // start OK if closed then becomes false
 
@@ -64,11 +62,35 @@ var websocket_connection = (function() {
         return; // already connected
     }
 
-    //var host = location.origin.replace(/^http/, 'ws');
-    web_socket = new WebSocket('ws://'+location.hostname+':'+location.port+'/audio');
+    // Extract parameters from query parameters given to worker
+    // eg. new Worker(`ww_client_socket.js?host=testhost.org`)
+    let parameters = {};
+    location.search.slice(1).split("&").forEach( function(key_value) { var kv = key_value.split("="); parameters[kv[0]] = kv[1]; });
 
+    let wsUrl = '';
+    if('url' in parameters)
+    {
+        wsUrl = parameters['url'];
+    }
+    else
+    {
+        let wshostname = location.hostname;
+        if('host' in parameters)
+        {
+            wshostname = parameters['host'];
 
-    // console.log("Corinde alpha");
+        }
+
+        let wsProtocol = 'ws://';
+        if (location.protocol === 'https:')
+        {
+            wsProtocol = 'wss://';
+        }
+
+        wsUrl = `${wsProtocol}${wshostname}/audio`
+    }
+
+    web_socket = new WebSocket(wsUrl);
 
 
     // following binaryType must be set or you will get this error :
@@ -218,4 +240,4 @@ self.onmessage = function(event) {  //    retrieved a message from browser
     }
 };
 
-websocket_connection.init();
+//websocket_connection.init();

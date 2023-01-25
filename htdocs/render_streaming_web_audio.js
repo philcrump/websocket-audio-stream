@@ -295,6 +295,10 @@ function resume() {
   });
 }
 
+function is_playing() {
+    return (audio_context.state === "running");
+}
+
 function set_volume(volume_normalised) {
   if(volume_normalised < 0.0) volume_normalised = 0.0;
   if(volume_normalised > 1.0) volume_normalised = 1.0;
@@ -345,6 +349,7 @@ return {
     get_buffer_state : get_buffer_state,
     pause : pause,
     resume : resume,
+    is_playing : is_playing,
     set_volume : set_volume,
     get_analyser_dataframe : get_analyser_dataframe
 };

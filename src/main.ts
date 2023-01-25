@@ -66,8 +66,8 @@ App.listen({ hostname: Config.http.address, port: Config.http.port });
 const sendSize = (1024) * 2; // 2 bytes/sample
 let udpBuffer = new Buffer.alloc(10*sendSize);
 
-console.info(`Starting UDP server (${Config.udp.address}:${Config.udp.port})..`);
-const l = Deno.listenDatagram({transport: "udp", port: Config.udp.port, hostname: Config.udp.address, reusePort: true});
+console.info(`Starting UDP server (listening) (${Config.udp.address}:${Config.udp.port})..`);
+const l = Deno.listenDatagram({transport: "udp", port: Config.udp.port, hostname: Config.udp.address, reuseAddress: true});
 
 
 async function listenUDPAudio(l)
@@ -90,15 +90,15 @@ async function listenUDPAudio(l)
 }
 listenUDPAudio(l);
 
-console.info(`Starting UDP server (${Config.activity.address}:${Config.activity.port})..`);
-const udpActivity = Deno.listenDatagram({transport: "udp", port: Config.activity.port, hostname: Config.activity.address, reusePort: true});
+console.info(`Starting UDP server (listening) (${Config.activity.address}:${Config.activity.port})..`);
+const udpActivity = Deno.listenDatagram({transport: "udp", port: Config.activity.port, hostname: Config.activity.address, reuseAddress: true});
 
 let activity_list = [];
 
 const uuid_lookup = [
-  {'name': 'A', 'uuid': Buffer.from("0f826e6c0260476493100cc603ed9232", "hex")},
-  {'name': 'B', 'uuid': Buffer.from("4204c3a1f2394b23a2954a75386a14f0", "hex")}
-  {'name': 'C', 'uuid': Buffer.from("7006cbddcbe640f78e1d91d9ee662181", "hex")},
+  {'name': 'A', 'uuid': Buffer.from("0f826e6c0263266124100cc603ed9232", "hex")},
+  {'name': 'B', 'uuid': Buffer.from("7006cbddcbe640f78e1d4556ee662181", "hex")},
+  {'name': 'G', 'uuid': Buffer.from("4204c3a1f2394b23a3454363226a14f0", "hex")}
 ];
 
 async function listenActivity(l)

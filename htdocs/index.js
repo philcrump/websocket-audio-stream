@@ -1,6 +1,7 @@
 "use strict";
 
 let channels_ui;
+let handsets_ui;
 
 var console = (function() {
 
@@ -55,11 +56,11 @@ var console = (function() {
 /* Configuration loaded from API */
 let channels_config = [
     {
-      'uid': '2f2th02ht340ghg0h',
+      'uid': '3jdighdgwu49',
       'title': 'Stream A',
-      'audio_url': '/audio',
-      'queue_low': 12,
-      'queue_high': 18,
+      'audio_url': '/audioa',
+      'queue_low': 7,
+      'queue_high': 13,
       'queue_max': 20,
       'participants': [
         {
@@ -67,9 +68,22 @@ let channels_config = [
         },
         {
           'name': 'B'
+        }
+      ]
+    },
+    {
+      'uid': '6jfd83jdj6jd83',
+      'title': 'Stream B',
+      'audio_url': '/audiob',
+      'queue_low': 7,
+      'queue_high': 13,
+      'queue_max': 20,
+      'participants': [
+        {
+          'name': 'A'
         },
         {
-          'name': 'C'
+          'name': 'B'
         }
       ]
     }
@@ -92,14 +106,15 @@ const channels_view = {
     let _date_now = Date.now();
 
     return [
-      m("h2", 'Audio Channels'),
+      m("h2", 'Intercom Channels'),
       channels_config.map((channel) => {
         return m("div", {'class': 'card channel-card', 'id': `channel-${channel.uid}`}, [
             m("div", {'class': 'card-body row'}, [
               m("div", {'class': 'col-6'}, [
                 m("h4", {'class': 'card-title'}, `${channel.title}`),
-                m("canvas", {'class': 'channel-oscilloscope d-block'}),
-                m("input", {'type': 'range', 'class': 'form-range channel-volumecontrol d-block', 'disabled': true, 'min': 0.0, 'max': 1.0, 'step': 0.05}),
+                m("canvas", {'class': 'channel-oscilloscope d-block', 'height': 30, 'width': 120}), /* canvas height/width have to be set in HTML, not CSS */
+                m("span", {'class': 'channel-volumecontrol-label me-2'}, "Volume:"),
+                m("input", {'type': 'range', 'class': 'form-range channel-volumecontrol', 'disabled': true, 'min': 0.0, 'max': 1.0, 'step': 0.05}),
                 m("button", {'type': 'button', 'class': 'btn btn-warning channel-togglebutton d-block', 'disabled': true}, 'Loading..'),
                 m("meter", {
                   'class': 'channel-queuemeter',
@@ -109,13 +124,52 @@ const channels_view = {
                   'max': channel['queue_max'],
                   'value': channels_data[channel.uid].audioqueue
                 }),
-                m("span", {'class': 'ms-2'}, `Queue: ${channels_data[channel.uid].audioqueue}`)
+                m("span", {'class': 'ms-2'}, `Buffer: ${channels_data[channel.uid].audioqueue}`)
               ]),
               m("div", {'class': 'col-3 pt-2'}, [
                 m("h6", `Participants`),
                 Object.keys(channels_data[channel.uid].participants_last_active).map((participant_name) => {
                   return m("span", {'class': `badge participant-indicator rounded-pill ${(channels_data[channel.uid].participants_last_active[participant_name] + 500) > _date_now ? 'text-bg-primary' : 'text-bg-secondary'} d-block mb-1`}, `${participant_name}`);
                 })
+              ]),
+            ])
+          ]);
+      })
+    ];
+  }
+}
+
+let handsets_config = [
+    {
+      'uid': '345ggw',
+      'title': 'A',
+      'screen_url': 'http://192.168.200.1/screen.bmp'
+    },
+    {
+      'uid': 'weqty54',
+      'title': 'B',
+      'screen_url': 'http://192.168.200.2/screen.bmp'
+    }
+];
+
+const handsets_view = {
+  view: function()
+  {
+    if(handsets_config === null || channels_config.length === 0)
+    {
+      return [];
+    }
+
+    let _date_now = Date.now();
+
+    return [
+      m("h2", 'Handsets'),
+      handsets_config.map((handset) => {
+        return m("div", {'class': 'card handset-card', 'id': `handset-${handset.uid}`}, [
+            m("div", {'class': 'card-body row'}, [
+                m("h4", {'class': 'card-title'}, `${handset.title}`),
+              m("div", {'class': 'col-6'}, [
+                m("img", {'src': `${handset.screen_url}`})
               ]),
             ])
           ]);
@@ -150,7 +204,7 @@ function channel_oscilloscope_init(canvas, ctx)
 
   ctx.fillStyle = "rgb(200, 200, 200)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1;
   ctx.strokeStyle = "rgb(0, 0, 0)";
   ctx.beginPath();
   ctx.moveTo(0, Math.round(canvas.height/2.0));
@@ -168,7 +222,7 @@ function channel_oscilloscope_draw(canvas, canvasCtx, dataArray)
     canvasCtx.fillStyle = "rgb(200, 200, 200)";
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    canvasCtx.lineWidth = 2;
+    canvasCtx.lineWidth = 1;
     canvasCtx.strokeStyle = "rgb(0, 0, 0)";
     canvasCtx.beginPath();
 
@@ -192,6 +246,7 @@ function channel_oscilloscope_draw(canvas, canvasCtx, dataArray)
 window.addEventListener('load', () =>
 {
   channels_ui = document.getElementById("channels-ui");
+  handsets_ui = document.getElementById("handsets-ui");
 
   /* Create data objects */
   for (const channel of channels_config)
@@ -208,6 +263,10 @@ window.addEventListener('load', () =>
   }
 
   m.mount(channels_ui, channels_view);
+
+
+
+  m.mount(handsets_ui, handsets_view);
 
   /* Force render before we retrieve references */
   m.redraw();
@@ -228,7 +287,7 @@ window.addEventListener('load', () =>
     channels_elements[channel.uid].web_audio_obj = Object.create(render_streaming_web_audio());
 
     /* Create Websocket Worker */
-    channels_elements[channel.uid].ws_worker_handle = new Worker("ww_client_socket.js");
+    channels_elements[channel.uid].ws_worker_handle = new Worker(`ww_client_socket.js?url=${channel.audio_url}`);
     channels_elements[channel.uid].ws_worker_handle.onmessage = function(event)
     {
       if (event.data instanceof ArrayBuffer) {
@@ -252,7 +311,7 @@ window.addEventListener('load', () =>
 
       } else if (event.data instanceof Object) {
 
-        if(event.data.participants.length > 0)
+        if(typeof event.data.participants != 'undefined' && event.data.participants.length > 0)
         {
           for(const active_partipicant of event.data.participants)
           {
@@ -275,11 +334,21 @@ window.addEventListener('load', () =>
           channels_data[channel.uid].audioqueue = channels_elements[channel.uid].web_audio_obj.get_buffer_state();
           channels_data[channel.uid].audio_analyser_dataframe = channels_elements[channel.uid].web_audio_obj.get_analyser_dataframe();
 
-          if(channels_elements[channel.uid].web_audio_obj.queue.is_play_recommended())
+          if(channels_elements[channel.uid].web_audio_obj.is_playing())
+          {
+            channels_elements[channel.uid].ui_togglebutton.textContent = "Playing";
+            channels_elements[channel.uid].ui_togglebutton.disabled = true;
+          }
+          else if(channels_elements[channel.uid].web_audio_obj.queue.is_play_recommended())
           {
             channels_elements[channel.uid].ui_togglebutton.disabled = false;
             channels_elements[channel.uid].ui_togglebutton.textContent = "Start";
             channels_elements[channel.uid].ui_volumecontrol.disabled = false;
+          }
+          else
+          {
+            channels_elements[channel.uid].ui_togglebutton.textContent = "Buffering";
+            channels_elements[channel.uid].ui_togglebutton.disabled = true;
           }
 
           channel_oscilloscope_draw(
@@ -287,8 +356,6 @@ window.addEventListener('load', () =>
             channels_elements[channel.uid].ui_oscilloscope_ctx,
             channels_data[channel.uid].audio_analyser_dataframe
           );
-
-
 
           m.redraw();
       }, 100);
@@ -305,6 +372,8 @@ window.addEventListener('load', () =>
       channels_elements[channel.uid].web_audio_obj.set_volume(e.target.valueAsNumber);
     }, false);
   }
+
+
 });
 
 /* Worker comms */
